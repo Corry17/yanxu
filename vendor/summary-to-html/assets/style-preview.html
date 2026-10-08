@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="自定义内容网页：答辩、汇报、作品展示、多媒体与本地附件的样式预览。">
+<title>选择你的表达方式 · 内容网页工作室</title>
+<style>
+:root {
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; font-family: var(--sans); line-height: 1.7;
+  --bg: #f3f6fb; --surface: #fff; --ink: #182334; --muted: #566477;
+  --accent: #245ad9; --line: #d5deec; --soft: #eaf0ff; --radius: 16px;
+  background: var(--bg); color: var(--ink);
+}
+body[data-style="editorial"] {
+  --bg: #f4f0e8; --surface: #faf7f0; --ink: #2c2925; --muted: #706559;
+  --accent: #a63727; --line: #d2c8b9; --soft: #eee5d8; --radius: 0;
+}
+body[data-style="terminal"] {
+  --bg: #101720; --surface: #17232f; --ink: #e5f0ef; --muted: #a6b9bd;
+  --accent: #86e2c4; --line: #344954; --soft: #203a3b; --radius: 6px;
+  color-scheme: dark;
+}
+body[data-style="dashboard"] {
+  --bg: #eef0f7; --surface: #fff; --ink: #202740; --muted: #606781;
+  --accent: #5841c6; --line: #d8dced; --soft: #eeebfc; --radius: 20px;
+}
+body[data-style="notebook"] {
+  --bg: #f4f3e9; --surface: #fffef6; --ink: #293b30; --muted: #627064;
+  --accent: #3d694c; --line: #cbd4c4; --soft: #e3ebd9; --radius: 24px;
+}
+body[data-style="spotlight"] {
+  --bg: #191a17; --surface: #20211c; --ink: #f4f3e9; --muted: #b5b6a7;
+  --accent: #ddf274; --line: #44463b; --soft: #343c21; --radius: 0;
+  color-scheme: dark;
+}
+body[data-style="minimal"] {
+  --bg: #ffffff; --surface: #ffffff; --ink: #202124; --muted: #596068;
+  --accent: #30363c; --line: #d9dde1; --soft: #f3f4f5; --radius: 0;
+}
+body[data-style="academic"] {
+  --bg: #f5f7fb; --surface: #ffffff; --ink: #243247; --muted: #55647a;
+  --accent: #2a4b75; --line: #ccd7e5; --soft: #eaf0f7; --radius: 4px;
+}
+body[data-style="swiss"] {
+  --bg: #f5f4f0; --surface: #ffffff; --ink: #202020; --muted: #62605a;
+  --accent: #b32b23; --line: #cbc8bf; --soft: #ece8df; --radius: 0;
+}
+body[data-style="gallery"] {
+  --bg: #f8f5ef; --surface: #ffffff; --ink: #302c26; --muted: #706352;
+  --accent: #7c582d; --line: #d9cebf; --soft: #eee6d9; --radius: 8px;
+}
+body[data-style="blueprint"] {
+  --bg: #153552; --surface: #1d4262; --ink: #edf5fc; --muted: #bed1e3;
+  --accent: #a8d6fa; --line: #527797; --soft: #234d70; --radius: 0;
+  color-scheme: dark;
+}
+body[data-style="pastel"] {
+  --bg: #f8f5fc; --surface: #ffffff; --ink: #35303f; --muted: #696076;
+  --accent: #6b4d83; --line: #ddd2e7; --soft: #eee5f5; --radius: 28px;
+}
+a { color: var(--accent); text-underline-offset: 4px; }
+button, select, textarea { font: inherit; }
+button, select { min-height: 44px; cursor: pointer; }
+button { color: inherit; }
+button:disabled { cursor: default; opacity: .4; }
+:focus-visible { outline: 3px solid var(--accent, #245ad9); outline-offset: 4px; }
+.skip-link { position: fixed; left: 16px; top: -80px; z-index: 10; padding: 12px; background: var(--surface); }
+.skip-link:focus { top: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.studio { min-height: 100vh; }
+body[data-preview-only] .studio { display: grid; grid-template-columns: 288px minmax(0, 1fr); }
+.sidebar {
+  --accent: #245ad9; color-scheme: light; color: #252b36; background: #fcfcfa;
+  border-right: 1px solid #e3e5df; padding: 26px 22px; position: sticky;
+  top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
+}
+.brand { display: flex; gap: 10px; align-items: center; font-size: 13px; font-weight: 750; letter-spacing: .12em; }
+.brand-mark { width: 28px; height: 28px; background: #242d26; border-radius: 8px; display: grid; place-items: center; color: #edf7d9; font-size: 18px; }
+.sidebar h2 { font-size: 26px; margin: 24px 0 4px; letter-spacing: -.05em; }
+.sidebar-intro, .help { font-size: 13px; color: #62685e; line-height: 1.7; }
+.sidebar-intro { margin: 0 0 22px; }
+.control-label { display: block; font-size: 11px; font-weight: 750; color: #72786e; letter-spacing: .1em; margin: 20px 0 10px; }
+.style-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.style-option { border: 1px solid #dedfd9; border-radius: 11px; background: #fff; padding: 7px; text-align: left; }
+.style-option[aria-pressed="true"] { border-color: #2e4735; box-shadow: 0 0 0 1px #2e4735; }
+.style-option strong { display: block; font-size: 12px; padding-top: 6px; font-weight: 650; }
+.style-option small { font: 10px var(--mono); color: #70766b; float: right; padding-top: 3px; }
+.mini { height: 65px; display: block; position: relative; overflow: hidden; border-radius: 5px; padding: 9px 10px; background: #f0f4fd; color: #245ad9; font: 750 25px/1.2 var(--sans); }
+.mini::after { content: ""; display: block; width: 48%; height: 3px; background: currentColor; opacity: .45; margin-top: 7px; box-shadow: 26px 0 currentColor; }
+.mini-editorial { background: #eee8da; color: #a63727; font-family: var(--serif); border-radius: 0; border-top: 2px solid; }
+.mini-terminal { background: #14222c; color: #86e2c4; font-family: var(--mono); }
+.mini-dashboard { background: #eeebfa; color: #5841c6; border-left: 18px solid #dbd5f4; }
+.mini-notebook { background: #e9eedb; color: #3d694c; border-radius: 5px 16px 5px 5px; }
+.mini-spotlight { background: #20211b; color: #ddf274; letter-spacing: -.1em; font-size: 31px; }
+.mini-minimal { background: #fff; color: #30363c; border: 1px solid #ddd; }
+.mini-academic { background: #eaf0f7; color: #2a4b75; font-family: var(--serif); }
+.mini-swiss { background: #ece8df; color: #b32b23; font-weight: 900; border-radius: 0; }
+.mini-gallery { background: #eee6d9; color: #7c582d; text-align: center; font-family: var(--serif); }
+.mini-blueprint { background: #153552; color: #a8d6fa; border: 1px dashed; font-family: var(--mono); }
+.mini-pastel { background: #eee5f5; color: #6b4d83; border-radius: 18px 5px 18px 5px; }
+.mode-picker { display: flex; gap: 4px; background: #eeefe9; border-radius: 9px; padding: 4px; }
+.mode-picker button { flex: 1; border: 0; background: transparent; border-radius: 6px; font-size: 13px; color: #50574b; }
+.mode-picker button[aria-pressed="true"] { background: white; color: #233828; box-shadow: 0 1px 5px #00000012; }
+#selection-text, #project-purpose { width: 100%; margin-top: 18px; padding: 10px; resize: vertical; font-size: 12px; background: #f4f5ef; color: #45523e; border: 1px solid #dedfd9; border-radius: 8px; }
+.copy-button { width: 100%; border: 0; border-radius: 8px; background: #293c2f; color: #fff; margin-top: 9px; font-size: 13px; font-weight: 650; }
+.help { margin: 9px 0 0; font-size: 12px; }
+.workspace { min-width: 0; }
+.document-tools { position: sticky; top: 0; z-index: 3; background: var(--surface); border-bottom: 1px solid var(--line); }
+.tool-row { min-height: 66px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 28px; }
+.document-identity { min-width: 0; }
+#document-title { font-size: 13px; font-weight: 650; }
+.preview-badge { font: 10px var(--mono); color: var(--muted); margin-left: 12px; }
+.reader-controls { display: none; align-items: center; gap: 8px; }
+.enhanced .reader-controls { display: flex; }
+.reader-controls select, .tool-button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 7px; padding: 6px 10px; font-size: 12px; }
+.reader-controls select { max-width: 170px; }
+.progress { width: 100%; display: block; height: 3px; border: 0; appearance: none; background: var(--line); accent-color: var(--accent); }
+.progress::-webkit-progress-bar { background: var(--line); }
+.progress::-webkit-progress-value { background: var(--accent); }
+.progress::-moz-progress-bar { background: var(--accent); }
+.document { max-width: 1240px; margin-inline: auto; }
+.page { padding: clamp(28px, 4.7vw, 70px); border-bottom: 1px solid var(--line); scroll-margin-top: calc(var(--tools-height, 96px) + 16px); overflow-wrap: anywhere; }
+.chapter-head { display: flex; justify-content: space-between; gap: 16px; font: 11px var(--mono); color: var(--muted); letter-spacing: .08em; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.kicker { font-size: 12px; color: var(--accent); font-weight: 750; letter-spacing: .15em; margin: 0 0 14px; }
+h1, h2, h3, p { margin-top: 0; }
+h1, .page h2 { text-wrap: balance; letter-spacing: -.055em; line-height: 1.18; }
+h1 { font-size: clamp(34px, 4.1vw, 67px); margin-bottom: 22px; font-weight: 780; }
+h1 span, h1 em { display: block; }
+h1 em { font-style: normal; color: var(--accent); }
+.page h2 { font-size: clamp(28px, 3.3vw, 47px); margin-bottom: 22px; }
+.page h3 { font-size: 18px; letter-spacing: -.02em; margin-bottom: 8px; line-height: 1.5; }
+.lead { font-size: clamp(16px, 1.45vw, 19px); color: var(--muted); max-width: 42em; line-height: 1.9; margin-bottom: 30px; }
+.callout { padding: 20px 24px; background: var(--soft); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; margin: 26px 0; }
+.callout p { margin: 6px 0 0; font-size: 16px; }
+.eyebrow { color: var(--accent); font-size: 11px; letter-spacing: .1em; font-weight: 700; }
+.insights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 30px; }
+.insight { min-width: 0; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.item-no { display: block; font: 12px var(--mono); color: var(--accent); margin-bottom: 20px; }
+.insight p, .step p { color: var(--muted); font-size: 16px; margin: 0; }
+.page-foot { margin-top: 34px; padding-top: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+.steps { margin: 30px 0; display: grid; gap: 0; }
+.step { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 18px; padding: 24px 0; border-top: 1px solid var(--line); }
+.step .item-no { font-size: 22px; margin: 4px 0; }
+.quote { font-size: clamp(22px, 2.6vw, 34px); line-height: 1.6; border-left: 3px solid var(--accent); padding: 6px 0 6px 24px; margin: 32px 0; }
+.checklist { list-style: none; padding: 0; margin: 28px 0; }
+.checklist li { padding: 14px 0 14px 32px; border-bottom: 1px solid var(--line); position: relative; font-size: 17px; }
+.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 750; }
+pre { max-width: 100%; overflow-x: auto; padding: 22px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); font: 14px/1.8 var(--mono); }
+.source-note { color: var(--muted); font-size: 13px; margin-top: 26px; }
+.media-frame { margin: 24px 0; }
+.media-frame img, .media-frame video { display: block; max-width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+.media-frame audio { width: 100%; }
+.media-frame figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; }
+.file-card { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); overflow-wrap: anywhere; }
+.file-card a { display: inline-block; min-height: 44px; margin-right: 16px; padding-block: 8px; }
+.deck-nav { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 28px; border-top: 1px solid var(--line); background: var(--surface); }
+.enhanced[data-mode="deck"] .deck-nav { display: flex; }
+.enhanced[data-mode="deck"] .page { display: none; min-height: calc(100vh - 145px); min-height: calc(100dvh - 145px); }
+.enhanced[data-mode="deck"] .page.is-current { display: block; }
+#page-status { font: 12px var(--mono); color: var(--muted); }
+[data-style="brief"] .insight { box-shadow: 0 8px 25px #25436a06; }
+[data-style="editorial"] h1, [data-style="editorial"] .page h2 { font-family: var(--serif); font-weight: 700; }
+[data-style="editorial"] .insights { grid-template-columns: 1fr; gap: 0; }
+[data-style="editorial"] .insight { display: grid; grid-template-columns: 48px 1fr; gap: 20px; border: 0; border-top: 1px solid var(--line); padding: 24px 0; background: transparent; }
+[data-style="editorial"] .insight .item-no { font: 32px var(--serif); margin: 0; }
+[data-style="editorial"] .callout { background: none; padding-block: 12px; }
+[data-style="terminal"] .document { background-image: linear-gradient(#829fa007 1px, transparent 1px), linear-gradient(90deg, #829fa007 1px, transparent 1px); background-size: 28px 28px; }
+[data-style="terminal"] .kicker, [data-style="terminal"] .eyebrow { font-family: var(--mono); }
+[data-style="terminal"] .insight { border-top: 2px solid var(--accent); }
+[data-style="terminal"] .item-no::before { content: "> "; }
+[data-style="dashboard"] .insights { grid-template-columns: 1.35fr 1fr; }
+[data-style="dashboard"] .insight:first-child { grid-row: span 2; display: flex; flex-direction: column; justify-content: space-between; }
+[data-style="dashboard"] .insight:first-child .item-no { font-size: 52px; line-height: 1.2; }
+[data-style="dashboard"] .callout { border-left: 0; border-radius: 16px; }
+[data-style="notebook"] .insight:nth-child(2) { background: #edf1e3; }
+[data-style="notebook"] .insight:nth-child(3) { background: #f7eedc; }
+[data-style="notebook"] .insight { border-top: 4px solid var(--line); }
+[data-style="notebook"] .callout { border: 1px dashed var(--accent); border-radius: 16px; }
+[data-style="notebook"] h1 { font-size: clamp(34px, 3.8vw, 60px); }
+[data-style="spotlight"] h1 { font-size: clamp(38px, 4.9vw, 78px); font-weight: 800; }
+[data-style="spotlight"] .insight { border: 0; border-top: 1px solid var(--line); padding: 20px 0; background: none; }
+[data-style="spotlight"] .callout { border: 0; background: none; padding: 0; margin: 38px 0; }
+[data-style="spotlight"] .callout p { font-size: 22px; }
+[data-style="spotlight"] .chapter-head { border: 0; }
+[data-style="minimal"] .document { max-width: 940px; }
+[data-style="minimal"] .insights { grid-template-columns: 1fr; gap: 0; }
+[data-style="minimal"] .insight { background: none; border: 0; border-top: 1px solid var(--line); padding: 22px 0; }
+[data-style="minimal"] .callout { background: none; border-left: 2px solid var(--ink); }
+[data-style="minimal"] h1 { font-size: clamp(34px, 3.6vw, 54px); font-weight: 650; }
+[data-style="academic"] h1, [data-style="academic"] .page h2 { font-family: var(--serif); letter-spacing: -.02em; }
+[data-style="academic"] .insights { grid-template-columns: 1fr; }
+[data-style="academic"] .insight { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 18px; }
+[data-style="academic"] .callout { border-left-width: 4px; }
+[data-style="swiss"] h1 { font-weight: 900; letter-spacing: -.07em; }
+[data-style="swiss"] .insights { gap: 0; }
+[data-style="swiss"] .insight { border: 0; border-top: 3px solid var(--ink); border-right: 1px solid var(--line); background: none; }
+[data-style="swiss"] .item-no { font-size: 36px; font-weight: 800; }
+[data-style="gallery"] h1, [data-style="gallery"] .kicker { text-align: center; }
+[data-style="gallery"] h1 { font-family: var(--serif); }
+[data-style="gallery"] .lead { margin-inline: auto; }
+[data-style="gallery"] .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+[data-style="gallery"] .insight:first-child { grid-column: 1 / -1; padding: 30px; }
+[data-style="gallery"] .media-frame { padding: 16px; background: var(--surface); }
+[data-style="blueprint"] .document { background-image: linear-gradient(#86a8c414 1px, transparent 1px), linear-gradient(90deg, #86a8c414 1px, transparent 1px); background-size: 24px 24px; }
+[data-style="blueprint"] .insight { border: 1px dashed var(--line); background: transparent; }
+[data-style="blueprint"] .chapter-head, [data-style="blueprint"] .item-no { font-family: var(--mono); }
+[data-style="blueprint"] .callout { background: none; border: 1px solid var(--accent); }
+[data-style="pastel"] .insights { grid-template-columns: 1fr; gap: 18px; }
+[data-style="pastel"] .insight { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 18px; border: 0; padding: 26px; }
+[data-style="pastel"] .item-no { align-self: start; background: var(--soft); border-radius: 50%; text-align: center; padding: 10px 0; }
+[data-style="pastel"] .callout { border: 0; border-radius: 24px; }
+@media (max-width: 1080px) {
+  body[data-preview-only] .studio { grid-template-columns: 242px minmax(0, 1fr); }
+  .sidebar { padding: 22px 16px; }
+  .insights { grid-template-columns: 1fr; }
+  .insight { padding: 20px; }
+  .item-no { margin-bottom: 12px; }
+  .tool-row { padding-inline: 20px; }
+}
+@media (max-width: 760px) {
+  body[data-preview-only] .studio { display: block; }
+  .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid #dedfd9; padding: 20px; }
+  .sidebar h2 { margin-top: 14px; font-size: 24px; }
+  .sidebar-intro { margin-bottom: 12px; }
+  .style-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mini { height: 55px; }
+  .style-option strong { font-size: 11px; }
+  .style-option small { display: none; }
+  .mode-picker { max-width: 360px; }
+  #selection-text { margin-top: 14px; }
+  .page { padding: 30px 22px; }
+  .chapter-head { margin-bottom: 28px; font-size: 10px; }
+  .tool-row { padding: 10px 16px; }
+  .preview-badge { display: none; }
+  .reader-controls { width: 100%; justify-content: space-between; }
+  .reader-controls select { flex: 1; max-width: none; }
+  .insights, [data-style="dashboard"] .insights, [data-style="gallery"] .insights { grid-template-columns: 1fr; }
+  [data-style="gallery"] .insight:first-child { grid-column: auto; padding: 22px; }
+  [data-style="swiss"] .insight { border-right: 0; }
+  [data-style="pastel"] .insight { padding: 20px; gap: 12px; }
+  [data-style="dashboard"] .insight:first-child { grid-row: auto; }
+  [data-style="dashboard"] .insight:first-child .item-no { font-size: 28px; margin-bottom: 14px; }
+  .lead { line-height: 1.8; }
+  .page-foot { margin-top: 28px; }
+  .deck-nav { padding: 10px 16px; }
+  .callout { padding: 18px; }
+  .step { gap: 10px; grid-template-columns: 38px minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media print {
+  body[data-style], body { background: white !important; color: #111 !important; --surface: white; --ink: #111; --muted: #444; --accent: #222; --line: #bbb; --soft: #f3f3f3; }
+  .sidebar, .document-tools, .deck-nav, .skip-link, [data-preview-only]:not(body) { display: none !important; }
+  .studio { display: block !important; }
+  .document { max-width: none; background: none !important; }
+  .page, .enhanced[data-mode="deck"] .page { display: block !important; min-height: 0 !important; height: auto !important; overflow: visible !important; padding: 14mm 8mm; break-before: page; }
+  .page:first-child { break-before: auto; }
+  .insight, .step, .callout { break-inside: avoid; box-shadow: none !important; background: white !important; }
+  h1, [data-style="spotlight"] h1, [data-style="notebook"] h1 { font-size: 32pt; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+  h1, h2, h3 { break-after: avoid; }
+  video, audio { display: none; }
+  .media-frame figcaption, .file-card { display: block; }
+}
+</style>
+</head>
+<body data-style="brief" data-mode="scroll" data-preview-only="true">
+<a class="skip-link" href="#document">跳到内容</a>
+<div class="studio">
+  <aside class="sidebar" data-preview-only="true" aria-label="样式选择">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">≋</span> CONTENT STUDIO</div>
+    <h2>选择你的表达方式。</h2>
+    <p class="sidebar-intro">同一份内容，十二种气质。<br>先感受，再决定。</p>
+    <span class="control-label" id="style-label">01 / 视觉风格</span>
+    <div class="style-grid" role="group" aria-labelledby="style-label">
+      <button class="style-option" type="button" data-theme="brief" aria-pressed="true"><span class="mini" aria-hidden="true">Aa</span><strong>商务简报<small>01</small></strong></button>
+      <button class="style-option" type="button" data-theme="editorial" aria-pressed="false"><span class="mini mini-editorial" aria-hidden="true">阅</span><strong>纸感杂志<small>02</small></strong></button>
+      <button class="style-option" type="button" data-theme="terminal" aria-pressed="false"><span class="mini mini-terminal" aria-hidden="true">&gt;_</span><strong>暗色科技<small>03</small></strong></button>
+      <button class="style-option" type="button" data-theme="dashboard" aria-pressed="false"><span class="mini mini-dashboard" aria-hidden="true">Aa</span><strong>数据报告<small>04</small></strong></button>
+      <button class="style-option" type="button" data-theme="notebook" aria-pressed="false"><span class="mini mini-notebook" aria-hidden="true">记</span><strong>暖色手记<small>05</small></strong></button>
+      <button class="style-option" type="button" data-theme="spotlight" aria-pressed="false"><span class="mini mini-spotlight" aria-hidden="true">Aa.</span><strong>极简演示<small>06</small></strong></button>
+      <button class="style-option" type="button" data-theme="minimal" aria-pressed="false"><span class="mini mini-minimal" aria-hidden="true">Aa</span><strong>极简白纸<small>07</small></strong></button>
+      <button class="style-option" type="button" data-theme="academic" aria-pressed="false"><span class="mini mini-academic" aria-hidden="true">研</span><strong>学术报告<small>08</small></strong></button>
+      <button class="style-option" type="button" data-theme="swiss" aria-pressed="false"><span class="mini mini-swiss" aria-hidden="true">Aa</span><strong>瑞士网格<small>09</small></strong></button>
+      <button class="style-option" type="button" data-theme="gallery" aria-pressed="false"><span class="mini mini-gallery" aria-hidden="true">展</span><strong>作品画廊<small>10</small></strong></button>
+      <button class="style-option" type="button" data-theme="blueprint" aria-pressed="false"><span class="mini mini-blueprint" aria-hidden="true">[+]</span><strong>蓝图工程<small>11</small></strong></button>
+      <button class="style-option" type="button" data-theme="pastel" aria-pressed="false"><span class="mini mini-pastel" aria-hidden="true">Aa</span><strong>柔彩轻读<small>12</small></strong></button>
+    </div>
+    <label class="control-label" for="project-purpose">02 / 内容用途 · 可自由填写</label>
+    <textarea id="project-purpose" rows="2" maxlength="160" spellcheck="false">自定义内容展示</textarea>
+    <p class="help">例如：论文答辩、作品集、教程。用途会随选择发回对话，不限制正文结构。</p>
+    <span class="control-label" id="mode-label">03 / 阅读形式</span>
+    <div class="mode-picker" role="group" aria-labelledby="mode-label">
+      <button type="button" data-mode-choice="scroll" aria-pressed="true">长页阅读</button>
+      <button type="button" data-mode-choice="deck" aria-pressed="false">翻页演示</button>
+    </div>
+    <label class="sr-only" for="selection-text">将此选择发回对话</label>
+    <textarea id="selection-text" rows="3" readonly spellcheck="false">用途：自定义内容展示。我选择「商务简报」风格，采用「长页阅读」形式。</textarea>
+    <button id="copy-choice" class="copy-button" type="button">复制选择 ↗</button>
+    <p class="help" id="copy-status" role="status">复制后发回对话，再生成完整网页。<br>这里的点击不会自动通知助手。</p>
+    <noscript><p class="help">JavaScript 已关闭，样式切换不可用；下方示例正文仍可完整阅读。</p></noscript>
+  </aside>
+  <div class="workspace">
+    <header class="document-tools">
+      <div class="tool-row">
+        <div class="document-identity"><span id="document-title">内容，由你定义</span><span class="preview-badge" data-preview-only="true">STYLE PREVIEW / 示例内容</span></div>
+        <div class="reader-controls">
+          <label class="sr-only" for="toc">跳转章节</label>
+          <select id="toc" aria-label="跳转章节"></select>
+          <button class="tool-button" type="button" id="print-document">打印 / PDF</button>
+        </div>
+      </div>
+      <nav class="deck-nav" aria-label="演示翻页">
+        <button class="tool-button" type="button" id="previous-page">← 上一页</button>
+        <span id="page-status" role="status" aria-live="polite">01 / 03</span>
+        <button class="tool-button" type="button" id="next-page">下一页 →</button>
+      </nav>
+      <progress id="reading-progress" class="progress" max="100" value="0" aria-label="阅读进度"></progress>
+    </header>
+    <main class="document" id="document" tabindex="-1">
+      <section class="page is-current" id="overview" data-label="核心结论" data-demo-content="true">
+        <div class="chapter-head"><span>YOUR CONTENT, YOUR STORY</span><span>01 / 核心结论</span></div>
+        <p class="kicker">从一个想法，到可分享的网页</p>
+        <h1 tabindex="-1"><span>不止总结，</span><em>表达由你定义。</em></h1>
+        <p class="lead">一场答辩、一份作品集、一堂课程，或你想呈现的任何内容。文字、图片、视频和原始文件，都可以拥有自己的位置。</p>
+        <div class="callout"><span class="eyebrow">一句话带走</span><p>你定义用途与内容，选择喜欢的样式；素材随网页一起保存，打开即读。</p></div>
+        <div class="insights">
+          <article class="insight"><span class="item-no">01</span><div><h3>结构，自由定义</h3><p>指定章节、顺序和局部布局；保留原文或重新编排，由你决定。</p></div></article>
+          <article class="insight"><span class="item-no">02</span><div><h3>素材，一起呈现</h3><p>读取指定文件夹，把图片、视频和说明放到合适的位置。</p></div></article>
+          <article class="insight"><span class="item-no">03</span><div><h3>原件，点击直达</h3><p>保留论文、数据和附件的打开或下载链接，随完整网页包交付。</p></div></article>
+        </div>
+        <div class="page-foot"><span>内容先行 · 结构清晰 · 风格自选</span><span>HTML / 随时打开，随处阅读</span></div>
+      </section>
+      <section class="page" id="method" data-label="整理方法" data-demo-content="true">
+        <div class="chapter-head"><span>FROM FOLDER TO WEBSITE</span><span>02 / 整理方法</span></div>
+        <p class="kicker">不只是把文字放进卡片</p>
+        <h2 tabindex="-1">把素材放进文件夹，其余可以交给助手。</h2>
+        <p class="lead">原始文件不需要批量改名。先说明你想做什么，再选择哪些素材用于分析、哪些要显示、哪些需要提供下载。</p>
+        <div class="steps">
+          <div class="step"><span class="item-no">01</span><div><h3>定义用途和章节</h3><p>在 BRIEF.txt 写自然语言要求即可。比如：“做 15 分钟答辩，第三章放演示视频，最后附完整论文。”</p></div></div>
+          <div class="step"><span class="item-no">02</span><div><h3>把原件放到 materials</h3><p>图片、视频、音频、正文和附件分目录保存；助手扫描清单，并记录用途与说明。新文件加入后需要重新生成。</p></div></div>
+          <div class="step"><span class="item-no">03</span><div><h3>拿到完整网页包</h3><p>打开 index.html 阅读正文，resources.html 查看相关文件。分享整个文件夹或 ZIP，解压后仍可使用本地相对链接。</p></div></div>
+        </div>
+        <blockquote class="quote">形式的价值，是让理解发生得更自然。</blockquote>
+        <div class="page-foot"><span>同样的内容，不同的阅读节奏</span><span>原生 HTML · 无外部依赖</span></div>
+      </section>
+      <section class="page" id="next" data-label="开始制作" data-demo-content="true">
+        <div class="chapter-head"><span>MAKE IT YOUR OWN</span><span>03 / 开始制作</span></div>
+        <p class="kicker">把材料交给助手，把风格留给自己</p>
+        <h2 tabindex="-1">你的下一份内容，就从这里开始。</h2>
+        <ul class="checklist">
+          <li>告诉助手你的用途、大纲和素材文件夹。</li>
+          <li>在视觉预览中选择喜欢的风格与阅读形式。</li>
+          <li>获得适配手机的网页及选定素材，完整保存、直接打开。</li>
+        </ul>
+        <p class="eyebrow">可以这样发起任务</p>
+        <pre><code>/summary-to-html
+读取 projects/my-project，按我的大纲制作网页。
+第三章放视频，结尾提供论文下载，先让我选样式。</code></pre>
+        <div class="callout"><span class="eyebrow">已经有偏好？</span><p>也可以直接说：“用纸感杂志风格，做成长页阅读。”</p></div>
+        <p class="source-note">本页是原创排版示例。实际图片与视频需由你提供，不使用失效占位链接。外部网站需要联网；本地附件随完整包交付，浏览器是否内览取决于文件格式。</p>
+        <div class="page-foot"><span>在侧栏选择后，将结果发回对话</span><span>选择完成，再制作完整内容</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+<script id="document-runtime">
+(() => {
+  'use strict';
+  const body = document.body;
+  const main = document.getElementById('document');
+  const pages = Array.from(main.querySelectorAll(':scope > .page'));
+  const toc = document.getElementById('toc');
+  const previous = document.getElementById('previous-page');
+  const next = document.getElementById('next-page');
+  const status = document.getElementById('page-status');
+  const progress = document.getElementById('reading-progress');
+  const toolbar = document.querySelector('.document-tools');
+  if (!pages.length) return;
+  let index = 0;
+  let scheduled = false;
+  pages.forEach((page, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${String(i + 1).padStart(2, '0')} / ${page.dataset.label || '章节'}`;
+    toc.appendChild(option);
+  });
+  function updateProgress() {
+    scheduled = false;
+    const toolbarHeight = toolbar.getBoundingClientRect().height;
+    body.style.setProperty('--tools-height', `${toolbarHeight}px`);
+    if (body.dataset.mode === 'deck') {
+      progress.value = (index + 1) / pages.length * 100;
+      return;
+    }
+    const start = main.getBoundingClientRect().top + window.scrollY;
+    const distance = main.offsetHeight - window.innerHeight;
+    progress.value = distance <= 0 ? 100 : Math.max(0, Math.min(100, (window.scrollY - start) / distance * 100));
+    if (main.getBoundingClientRect().top > toolbarHeight + 32) return;
+    let current = 0;
+    pages.forEach((page, i) => { if (page.getBoundingClientRect().top <= toolbarHeight + 32) current = i; });
+    index = current;
+    toc.value = String(index);
+  }
+  function showPage(value, focus = false, updateHash = false) {
+    index = Math.max(0, Math.min(pages.length - 1, value));
+    pages.forEach((page, i) => {
+      page.classList.toggle('is-current', i === index);
+      if (body.dataset.mode === 'deck' && i !== index) {
+        page.querySelectorAll('video, audio').forEach(media => media.pause());
+      }
+    });
+    toc.value = String(index);
+    previous.disabled = index === 0;
+    next.disabled = index === pages.length - 1;
+    status.textContent = `${String(index + 1).padStart(2, '0')} / ${String(pages.length).padStart(2, '0')}`;
+    if (updateHash) {
+      try { history.replaceState(null, '', `#${encodeURIComponent(pages[index].id)}`); } catch (_) { /* 文件协议不支持时保持本地翻页。 */ }
+    }
+    if (focus) {
+      pages[index].scrollIntoView({ block: 'start', behavior: 'instant' });
+      const heading = pages[index].querySelector('h1, h2');
+      if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    }
+    updateProgress();
+  }
+  function followHash() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
+    const target = document.getElementById(id);
+    const found = pages.findIndex(page => page === target || page.contains(target));
+    if (found >= 0) showPage(found, true);
+  }
+  function setMode(mode, navigate = false) {
+    if (!['scroll', 'deck'].includes(mode)) return;
+    body.dataset.mode = mode;
+    body.style.setProperty('--tools-height', `${toolbar.getBoundingClientRect().height}px`);
+    showPage(index, navigate, navigate);
+    requestAnimationFrame(updateProgress);
+  }
+  previous.addEventListener('click', () => showPage(index - 1, true, true));
+  next.addEventListener('click', () => showPage(index + 1, true, true));
+  toc.addEventListener('change', () => showPage(Number(toc.value), true, true));
+  document.getElementById('print-document').addEventListener('click', () => window.print());
+  window.addEventListener('summary:mode', event => setMode(event.detail && event.detail.mode, true));
+  window.addEventListener('hashchange', followHash);
+  window.addEventListener('keydown', event => {
+    if (body.dataset.mode !== 'deck' || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    const target = event.target;
+    if (target instanceof Element && (target.closest('input, textarea, select, button, a, video, audio, [role="textbox"], [role="slider"]') || target.isContentEditable)) return;
+    const targets = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: pages.length - 1 };
+    if (!Object.prototype.hasOwnProperty.call(targets, event.key)) return;
+    event.preventDefault();
+    showPage(targets[event.key], true, true);
+  });
+  window.addEventListener('scroll', () => {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(updateProgress); }
+  }, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  setMode(body.dataset.mode || 'scroll');
+  body.classList.add('enhanced');
+  followHash();
+  updateProgress();
+})();
+</script>
+<script id="preview-script" data-preview-only="true">
+(() => {
+  'use strict';
+  const themes = { brief: '商务简报', editorial: '纸感杂志', terminal: '暗色科技', dashboard: '数据报告', notebook: '暖色手记', spotlight: '极简演示', minimal: '极简白纸', academic: '学术报告', swiss: '瑞士网格', gallery: '作品画廊', blueprint: '蓝图工程', pastel: '柔彩轻读' };
+  const modes = { scroll: '长页阅读', deck: '翻页演示' };
+  const selection = document.getElementById('selection-text');
+  const purpose = document.getElementById('project-purpose');
+  const status = document.getElementById('copy-status');
+  const themeButtons = document.querySelectorAll('[data-theme]');
+  const modeButtons = document.querySelectorAll('[data-mode-choice]');
+  function updateSelection() {
+    selection.value = `用途：${purpose.value.trim() || '自定义内容'}。我选择「${themes[document.body.dataset.style]}」风格，采用「${modes[document.body.dataset.mode]}」形式。`; 
+    status.textContent = '复制后发回对话，再生成完整网页。这里的点击不会自动通知助手。';
+  }
+  purpose.addEventListener('input', updateSelection);
+  themeButtons.forEach(button => button.addEventListener('click', () => {
+    const theme = button.dataset.theme;
+    if (!Object.prototype.hasOwnProperty.call(themes, theme)) return;
+    document.body.dataset.style = theme;
+    themeButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    updateSelection();
+    window.dispatchEvent(new Event('resize'));
+  }));
+  modeButtons.forEach(button => button.addEventListener('click', () => {
+    const mode = button.dataset.modeChoice;
+    if (!Object.prototype.hasOwnProperty.call(modes, mode)) return;
+    window.dispatchEvent(new CustomEvent('summary:mode', { detail: { mode } }));
+    modeButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    updateSelection();
+  }));
+  document.getElementById('copy-choice').addEventListener('click', async () => {
+    try {
+      if (!navigator.clipboard || !window.isSecureContext) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(selection.value);
+      status.textContent = '已复制。请粘贴到对话中，助手收到后再生成完整网页。';
+    } catch (_) {
+      selection.focus();
+      selection.select();
+      selection.setSelectionRange(0, selection.value.length);
+      status.textContent = '无法自动复制，已选中文字。请使用系统复制功能，再粘贴到对话。';
+    }
+  });
+})();
+</script>
+</body>
+</html>

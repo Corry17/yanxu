@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "slug": "my-project",
+  "title": "我的内容网页",
+  "purpose": "自定义：填写你想做的内容，不限于总结",
+  "audience": "填写给谁看",
+  "content_policy": "按用户要求创作或保留原文，不虚构事实",
+  "mode": "scroll",
+  "style": "ask",
+  "style_notes": "先预览再选样式；可填写品牌色、参考图或其他设计要求",
+  "duration_minutes": null,
+  "outline": [],
+  "resources": [],
+  "links": [],
+  "notes": "将原始文件放到 materials 对应目录，告诉助手用途即可。资源未加入清单前不会被打包。"
+}

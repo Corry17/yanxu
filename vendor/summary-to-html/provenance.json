@@ -1,0 +1,14 @@
+{
+  "name": "summary-to-html",
+  "source": "/Users/corry/vibecoding/h5/.qoder/skills/summary-to-html",
+  "files": {
+    "SKILL.md": "8db922af2ef246f59e44f4c37e3992c7de7b82d6dd8af0561518784bb2292c49",
+    "scripts/project_tool.py": "4bfb80ae5eb00b760b83ee72c593005923c2d260073c61c7bbdc1e9f8ca3562b",
+    "scripts/validate_html.py": "00215a80c4a8107b3aa5cabb6451574a8d896e78790637e8be8768e42fd7f56d",
+    "references/project-contract.md": "7076edc5d0c0304d9b8dbafb1e0af57ffafe894c48318aa2814b24296273f208",
+    "references/content-and-media.md": "b142deac3d041cb5a499d7e5002a10ae059c766531394e1085f2198fe311707a",
+    "references/style-presets.md": "1b8429a0bbed4b7bf0c37c75d1670284d1471523f16c9ec2c730b8d27214c457",
+    "assets/project-template.json": "fc0eca1c9ff6eb36bc2b25babfe12ce6561fd58a80a52bbb409c3634cd5fed90",
+    "assets/style-preview.html": "0ba2bb295b482049de2e2964993503ee18c37c521b53400d19ee41dac4e23c73"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "research-workbench",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "start": ".venv/bin/python -m backend",
+    "test": ".venv/bin/python -m pytest -q && npm run test:renderer",
+    "test:browser": "playwright test",
+    "build": "tsc --noEmit && vite build",
+    "test:renderer": "node --test packages/research-renderer/render.test.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "mathjax-full": "3.2.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "overrides": {
+    "@xmldom/xmldom": "0.9.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
